@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+dist/
+build/
+.env
+.env.local
+.env.*.local
+*.log
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+env/
+.env
+
+# IDEs
+.vscode/
+.idea/
+.DS_Store
+
+# Backend specific
+backend/.env
+backend/error.log
+backend/test_db.js
+
+# AI service specific
+ai-service/.env
+ai-service/__pycache__/
+ai-service/venv/
+
+# Frontend specific
+frontend/node_modules/
+frontend/dist/
