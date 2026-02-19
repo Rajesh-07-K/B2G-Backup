@@ -49,18 +49,26 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 5000
 
 const start = async () => {
-  await connectDB()
+  try {
+    await connectDB()
 
-  const { seedRoles, seedQuizzes, seedOpportunities } = require('./config/database')
-  await seedRoles()
-  await seedQuizzes()
-  await seedOpportunities()
+    const { seedRoles, seedQuizzes, seedOpportunities } = require('./config/database')
+    try {
+      await seedRoles()
+      await seedQuizzes()
+      await seedOpportunities()
+    } catch (seedErr) {
+      console.error('⚠️ Seeding failed, but server will continue:', seedErr.message)
+    }
 
-  app.listen(PORT, () => {
-    console.log(`🚀 B2G Backend running on http://localhost:${PORT}`)
-    console.log(`📦 Environment: ${process.env.NODE_ENV || 'development'}`)
-  })
+    app.listen(PORT, () => {
+      console.log(`🚀 B2G Backend running on http://localhost:${PORT}`)
+      console.log(`📦 Environment: ${process.env.NODE_ENV || 'development'}`)
+    })
+  } catch (err) {
+    console.error('❌ Failed to start server:', err.message)
+    process.exit(1)
+  }
 }
-
 
 start()
