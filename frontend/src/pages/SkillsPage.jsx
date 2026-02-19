@@ -78,23 +78,31 @@ export default function SkillsPage() {
     const handleResumeUpload = async () => {
         if (!resumeFile) return toast.error('Select a PDF file first')
         setExtracting(true)
-        const formData = new FormData()
-        formData.append('resume', resumeFile)
-        try {
-            const res = await skillsAPI.extractFromResume(formData)
-            const extracted = res.data.skills || []
+
+        // STATIC DEMO MODE: Simulate extraction of Full Stack skills
+        setTimeout(() => {
+            const staticSkills = [
+                { id: 's1', skill_name: 'JavaScript', category: 'programming', proficiency: 'advanced' },
+                { id: 's2', skill_name: 'React', category: 'framework', proficiency: 'intermediate' },
+                { id: 's3', skill_name: 'HTML/CSS', category: 'programming', proficiency: 'advanced' },
+                { id: 's4', skill_name: 'Git', category: 'tool', proficiency: 'intermediate' }
+            ]
+
             setMySkills(prev => {
                 const existing = prev.map(s => s.skill_name.toLowerCase())
-                const newOnes = extracted.filter(s => !existing.includes(s.skill_name.toLowerCase()))
+                const newOnes = staticSkills.filter(s => !existing.includes(s.skill_name.toLowerCase()))
                 return [...prev, ...newOnes]
             })
-            toast.success(`Extracted ${extracted.length} skills from resume!`)
-            setActiveTab('skills')
-        } catch {
-            toast.error('Resume extraction failed')
-        } finally {
+
             setExtracting(false)
-        }
+            toast.success(`Extracted skills from ${resumeFile.name}! (Demo Mode)`)
+            setActiveTab('skills')
+
+            // Auto-select Full Stack Developer for analysis
+            const fsRole = roles.find(r => r.title.toLowerCase().includes('full stack'))
+            if (fsRole) setSelectedRole(fsRole.id)
+
+        }, 1500)
     }
 
     const categoryColors = {

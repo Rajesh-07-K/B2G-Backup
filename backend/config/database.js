@@ -156,6 +156,7 @@ const DEFAULT_ROLES = [
   { title: 'Graphic Designer', required_skills: ['Figma', 'Photoshop', 'Illustrator', 'UI/UX', 'Typography', 'Color Theory'] },
   { title: 'Cloud Engineer', required_skills: ['AWS', 'Docker', 'Linux', 'Networking', 'Python', 'CI/CD'] },
   { title: 'Cybersecurity Analyst', required_skills: ['Networking', 'Linux', 'Python', 'Ethical Hacking', 'Firewalls', 'Cryptography'] },
+  { title: 'Full Stack Developer', required_skills: ['HTML', 'CSS', 'JavaScript', 'React', 'Node.js', 'Git', 'MongoDB', 'AWS', 'Docker'] },
   { title: 'AI/ML Engineer', required_skills: ['Python', 'Machine Learning', 'TensorFlow', 'Data Analysis', 'Statistics', 'Deep Learning'] },
 ]
 
@@ -165,6 +166,13 @@ const seedRoles = async () => {
   if (count === 0) {
     await Role.insertMany(DEFAULT_ROLES)
     console.log('✅ Default roles seeded')
+  } else {
+    // Ensure Full Stack Developer exists
+    const fsExists = await Role.findOne({ title: 'Full Stack Developer' })
+    if (!fsExists) {
+      await Role.create(DEFAULT_ROLES.find(r => r.title === 'Full Stack Developer'))
+      console.log('✅ Full Stack Developer role added to seeds')
+    }
   }
 }
 

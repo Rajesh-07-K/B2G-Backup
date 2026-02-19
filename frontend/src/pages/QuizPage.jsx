@@ -5,6 +5,8 @@ import { useOnlineStatus } from '../hooks/useOnlineStatus'
 import toast from 'react-hot-toast'
 import { BookOpen, CheckCircle, XCircle, Clock, Award, Wifi, WifiOff, RefreshCw, ChevronRight } from 'lucide-react'
 
+import { STATIC_QUIZ_FULLSTACK } from '../data/staticDemo'
+
 function QuizPlayer({ quiz, onComplete }) {
     const isOnline = useOnlineStatus()
     const [current, setCurrent] = useState(0)
@@ -177,7 +179,7 @@ export default function QuizPage() {
             if (isOnline) {
                 try {
                     const res = await quizAPI.list()
-                    const list = res.data.quizzes
+                    const list = [STATIC_QUIZ_FULLSTACK, ...res.data.quizzes]
                     setQuizzes(list)
                     // Cache for offline
                     for (const q of list) {
@@ -203,13 +205,15 @@ export default function QuizPage() {
     const startQuiz = async (quizId) => {
         try {
             let quiz
-            if (isOnline) {
+            if (quizId === 'quiz-fs') {
+                quiz = STATIC_QUIZ_FULLSTACK
+            } else if (isOnline) {
                 const res = await quizAPI.getById(quizId)
                 quiz = res.data.quiz
             } else {
                 quiz = await getQuizOffline(quizId)
             }
-            if (!quiz) return toast.error('Quiz not available offline')
+            if (!quiz) return toast.error('Quiz not available')
             setActiveQuiz(quiz)
         } catch {
             toast.error('Failed to load quiz')

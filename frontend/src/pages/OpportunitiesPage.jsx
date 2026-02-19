@@ -15,6 +15,8 @@ const CATEGORY_COLORS = {
     health: '#ef4444', transport: '#06b6d4', default: '#8b5cf6'
 }
 
+import { STATIC_OPPORTUNITIES } from '../data/staticDemo'
+
 function OpportunityDetail({ id }) {
     const { user } = useAuth()
     const [opp, setOpp] = useState(null)
@@ -24,6 +26,12 @@ function OpportunityDetail({ id }) {
     const [applied, setApplied] = useState(false)
 
     useEffect(() => {
+        const staticOpp = STATIC_OPPORTUNITIES.find(o => o.id === id)
+        if (staticOpp) {
+            setOpp({ opportunity: staticOpp, applications_count: 5 })
+            setLoading(false)
+            return
+        }
         opportunitiesAPI.getById(id)
             .then(res => setOpp(res.data))
             .catch(() => toast.error('Failed to load opportunity'))
@@ -154,8 +162,14 @@ export default function OpportunitiesPage() {
     const loadOpportunities = () => {
         setLoading(true)
         opportunitiesAPI.list({ category: filters.category || undefined, district: filters.district || undefined })
-            .then(res => setOpportunities(res.data.opportunities))
-            .catch(() => toast.error('Failed to load opportunities'))
+            .then(res => {
+                const combined = [...STATIC_OPPORTUNITIES, ...res.data.opportunities]
+                setOpportunities(combined)
+            })
+            .catch(() => {
+                setOpportunities(STATIC_OPPORTUNITIES)
+                toast.error('Using sample opportunities')
+            })
             .finally(() => setLoading(false))
     }
 

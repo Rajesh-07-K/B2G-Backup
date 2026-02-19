@@ -11,11 +11,18 @@ const LANGUAGES = [
     { code: 'te', label: 'Telugu' }, { code: 'kn', label: 'Kannada' },
 ]
 
+import { STATIC_FULLSTACK_ROADMAP } from '../data/staticDemo'
+
 function RoadmapDetail({ id }) {
     const [roadmap, setRoadmap] = useState(null)
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
+        if (id === 'static-fs-roadmap' || id === 'demo') {
+            setRoadmap(STATIC_FULLSTACK_ROADMAP)
+            setLoading(false)
+            return
+        }
         roadmapAPI.getById(id)
             .then(res => {
                 setRoadmap(res.data.roadmap)
@@ -160,6 +167,18 @@ function GenerateRoadmap() {
 
     const handleGenerate = async () => {
         if (!form.role_id) return toast.error('Select a target role')
+
+        const selectedRole = roles.find(r => r.id === form.role_id)
+        if (selectedRole?.title.toLowerCase().includes('full stack')) {
+            setLoading(true)
+            setTimeout(() => {
+                toast.success('Generated Full Stack Roadmap! (Demo Mode)')
+                navigate('/roadmap/static-fs-roadmap')
+                setLoading(false)
+            }, 2000)
+            return
+        }
+
         setLoading(true)
         try {
             const res = await roadmapAPI.generate(form)
@@ -229,8 +248,13 @@ export default function RoadmapPage() {
     useEffect(() => {
         if (!id) {
             roadmapAPI.getMyRoadmaps()
-                .then(res => setRoadmaps(res.data.roadmaps))
-                .catch(() => { })
+                .then(res => {
+                    const list = res.data.roadmaps || []
+                    setRoadmaps([STATIC_FULLSTACK_ROADMAP, ...list])
+                })
+                .catch(() => {
+                    setRoadmaps([STATIC_FULLSTACK_ROADMAP])
+                })
                 .finally(() => setLoading(false))
         } else {
             setLoading(false)
@@ -272,10 +296,15 @@ export default function RoadmapPage() {
                     <div className="card" style={{ textAlign: 'center', padding: '4rem 2rem' }}>
                         <Map size={60} color="var(--text-muted)" style={{ marginBottom: '1rem', opacity: 0.4 }} />
                         <h3 style={{ marginBottom: '0.5rem' }}>No Roadmaps Yet</h3>
-                        <p style={{ marginBottom: '2rem' }}>Generate your first AI-powered learning roadmap</p>
-                        <Link to="/roadmap/generate" className="btn btn-primary btn-lg">
-                            Generate Roadmap <ChevronRight size={18} />
-                        </Link>
+                        <p style={{ marginBottom: '1rem' }}>Generate your first AI-powered learning roadmap</p>
+                        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+                            <Link to="/roadmap/generate" className="btn btn-primary">
+                                Generate Roadmap <ChevronRight size={18} />
+                            </Link>
+                            <Link to="/roadmap/static-fs-roadmap" className="btn btn-secondary">
+                                View Sample Full Stack Roadmap
+                            </Link>
+                        </div>
                     </div>
                 ) : (
                     <div className="grid-auto">
@@ -283,8 +312,11 @@ export default function RoadmapPage() {
                             <Link to={`/roadmap/${r.id}`} key={r.id} className="card" style={{ textDecoration: 'none' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
                                     <div>
-                                        <div className={`badge badge-${r.status === 'active' ? 'success' : r.status === 'completed' ? 'primary' : 'warning'}`} style={{ marginBottom: '0.5rem' }}>
-                                            {r.status}
+                                        <div style={{ display: 'flex', gap: '0.4rem' }}>
+                                            <div className={`badge badge-${r.status === 'active' ? 'success' : r.status === 'completed' ? 'primary' : 'warning'}`} style={{ marginBottom: '0.5rem' }}>
+                                                {r.status}
+                                            </div>
+                                            {r.id === 'static-fs-roadmap' && <span className="badge badge-primary">DEMO</span>}
                                         </div>
                                         <h3 style={{ fontSize: '1.1rem' }}>{r.target_role}</h3>
                                     </div>
