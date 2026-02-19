@@ -25,8 +25,9 @@ function normalizeDoc(doc) {
 }
 
 const connectDB = async () => {
+  console.log("MONGO_URI:", process.env.MONGO_URI ? "Found (masked)" : "undefined");
   try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI, {
+    const conn = await mongoose.connect(process.env.MONGO_URI, {
       serverSelectionTimeoutMS: 10000,
     })
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`)
